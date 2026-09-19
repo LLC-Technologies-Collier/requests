@@ -599,7 +599,8 @@ class Session(SessionRedirectMixin):
         :param allow_redirects: (optional) Set to True by default.
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
-            hostname to the URL of the proxy.
+            hostname to the URL of the proxy. Can also include a ``'no'`` or
+            ``'no_proxy'`` key to specify URLs that should bypass proxy settings.
         :param hooks: (optional) Dictionary mapping hook name to one event or
             list of events, event must be callable.
         :param stream: (optional) whether to immediately download the response
