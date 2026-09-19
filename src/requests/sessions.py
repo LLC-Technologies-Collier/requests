@@ -780,11 +780,11 @@ class Session(SessionRedirectMixin):
         # Start time (approximately) of the request
         start = preferred_clock()
 
-        # Check if the URL should bypass the proxy based on 'no_proxy' in kwargs
-        if kwargs.get("proxies"):
-            no_proxy_list = kwargs["proxies"].get("no_proxy")
+        # Check if the URL should bypass the proxy based on 'no_proxy' or 'no' in kwargs
+        if kwargs.get('proxies'):
+            no_proxy_list = kwargs['proxies'].get('no_proxy') or kwargs['proxies'].get('no')
             if should_bypass_proxies(request.url, no_proxy=no_proxy_list):
-                kwargs["proxies"] = {}  # Clear proxies if URL should be bypassed
+                kwargs['proxies'] = {}  # Clear proxies if URL should be bypassed
 
         # Send the request
         r = adapter.send(request, **kwargs)
@@ -850,7 +850,7 @@ class Session(SessionRedirectMixin):
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
-            no_proxy = proxies.get("no_proxy") if proxies is not None else None
+            no_proxy = (proxies.get('no_proxy') or proxies.get('no')) if proxies is not None else None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
             if proxies is not None:
                 for k, v in env_proxies.items():

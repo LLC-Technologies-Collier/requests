@@ -2038,7 +2038,24 @@ class TestRequests:
 
 
     def test_rewind_body_no_seek(self):
-        pass
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj("the data")
+        prep = requests.Request("GET", "http://example.com", data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert "Unable to rewind request body" in str(e)
 
     def test_no_proxy_in_proxies_dict(self, httpbin):
         # Test case 1: 'no_proxy' in proxies dict
@@ -2101,24 +2118,7 @@ class TestRequests:
             # Check if proxies were NOT cleared before sending
             args, kwargs = mock_send.call_args
             assert kwargs.get("proxies") == proxies
-        class BadFileObj:
-            def __init__(self, data):
-                self.data = data
 
-            def tell(self):
-                return 0
-
-            def __iter__(self):
-                return
-
-        data = BadFileObj("the data")
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 0
-
-        with pytest.raises(UnrewindableBodyError) as e:
-            requests.utils.rewind_body(prep)
-
-        assert "Unable to rewind request body" in str(e)
 
     def test_rewind_body_failed_seek(self):
         class BadFileObj:
